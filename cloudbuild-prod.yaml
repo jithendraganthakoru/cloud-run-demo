@@ -1,0 +1,25 @@
+steps:
+  - name: 'gcr.io/cloud-builders/mvn'
+    entrypoint: 'mvn'
+    args: ['clean', 'package']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/springbootappwithcloudrun', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/springbootappwithcloudrun']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - springbootappwithcloudrun
+      - --image=gcr.io/$PROJECT_ID/springbootappwithcloudrun
+      - --region=us-central1
+      - --platform=managed
+	  - --set-env-vars=SPRING_PROFILES_ACTIVE=prod
+      - --allow-unauthenticated
+
+images:
+  - 'gcr.io/$PROJECT_ID/springbootappwithcloudrun'
